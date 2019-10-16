@@ -24,6 +24,7 @@ var BotController = (cfg) => {
     /////////////////////////////////
     // GPIO SETUP
     var gmOut = {mode: Gpio.OUTPUT}
+    /*
     var dirPins = [
         new Gpio(config.pins.leftDir, gmOut),
         new Gpio(config.pins.rightDir, gmOut)
@@ -32,9 +33,12 @@ var BotController = (cfg) => {
         new Gpio(config.pins.leftStep, gmOut),
         new Gpio(config.pins.rightStep, gmOut)
     ]
+    */
+    
     // set up servo GPIO pin
     var servo = new Gpio(config.pins.penServo, gmOut)
 
+    /*
     // ^ Step resolution Pins
     const leftMotorMs1= new Gpio(config.stepResolutionPins.leftMotor.ms1, gmOut)
     const leftMotorMs2= new Gpio(config.stepResolutionPins.leftMotor.ms2, gmOut)
@@ -58,7 +62,30 @@ var BotController = (cfg) => {
     rightMotorMs1.digitalWrite(1)
     rightMotorMs2.digitalWrite(1)
     rightMotorMs3.digitalWrite(0)
+    */
+    
+    // ^ Steper Motor Pins for ULN2003 board
+    //   MotorPins[ (0: left 1: right) , (1-4)] 
+    MotorPins[0,1] = new Gpio(config.stepResolutionPins.leftMotor.in1, gmOut)
+    MotorPins[0,2] = new Gpio(config.stepResolutionPins.leftMotor.in2, gmOut)
+    MotorPins[0,3] = new Gpio(config.stepResolutionPins.leftMotor.in3, gmOut)
+    MotorPins[0,4] = new Gpio(config.stepResolutionPins.leftMotor.in4, gmOut)
+    MotorPins[1,1] = new Gpio(config.stepResolutionPins.rightMotor.in1, gmOut)
+    MotorPins[1,2] = new Gpio(config.stepResolutionPins.rightMotor.in2, gmOut)
+    MotorPins[1,3] = new Gpio(config.stepResolutionPins.rightMotor.in3, gmOut)
+    MotorPins[1,4] = new Gpio(config.stepResolutionPins.rightMotor.in4, gmOut)
 
+    // ULN2003 board step sequence
+    SeqStep = [];
+    SeqStep[0] = [1,0,0,0];
+    SeqStep[1] = [1,1,0,0];
+    SeqStep[2] = [0,1,0,0];
+    SeqStep[3] = [0,1,1,0];
+    SeqStep[4] = [0,0,1,0];
+    SeqStep[5] = [0,0,1,1];
+    SeqStep[6] = [0,0,0,1];
+    SeqStep[7] = [1,0,0,1]; 
+    
     /////////////////////////////////
     // CONTROLLER VARIABLES
 
@@ -78,6 +105,8 @@ var BotController = (cfg) => {
     bc.paths = []
     bc.drawingPath = false
 
+    // 
+    bc.SeqSteps = [0, 0]
 
     /////////////////////////////////
     // HARDWARE METHODS
@@ -142,8 +171,25 @@ var BotController = (cfg) => {
     bc.makeStep = (m, d) => {
         // console.log('step',d)
         if(bc._DIRSWAP[m]) d = !d// swap direction if that setting is on
+        /*
         dirPins[m].digitalWrite(d)
         stepPins[m].digitalWrite(1)
+        */
+        if(d){
+            bc.SeqSteps[m]--
+            if(bc.SeqSteps[m]<0) bc.SeqSteps[m] = 7
+        }else{
+            bc.SeqSteps[m]++
+            if(bc.SeqSteps[m]>7) bc.SeqSteps[m] = 0
+        }            
+        for(var pin = 0; pin<4; pin++){
+            if(SeqStep[bc.SeqSteps[m]][pin] != 0){
+                MotorPins[m,pin].writeSync(1);
+            }else{
+                MotorPins[m,pin].writeSync(0);
+            }
+        }
+                
         setTimeout(function(){
             stepPins[m].digitalWrite(0)
         },1) 
