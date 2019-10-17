@@ -1,5 +1,5 @@
 {
-  "botID": "drawbot",
+  "botID": "drawbot_mint",
   "swapDirections": [
     true,
     true
@@ -18,24 +18,20 @@
   "penPauseDelay": 400,
   "remoteURL": "",
   "pins": {
-    "leftDir": 20,
-    "rightDir": 6,
-    "leftStep": 21,
-    "rightStep": 13,
     "penServo": 18
   },
-  "stepResolutionPins": {
+  "stepPins": {
     "leftMotor": {
-      "ms1": 2,
-      "ms2": 3,
-      "ms3": 4,
-      "ms4": 5
+      "in1": 2,
+      "in2": 3,
+      "in3": 4,
+      "in4": 5
     },
     "rightMotor": {
-      "ms1": 17,
-      "ms2": 27,
-      "ms3": 22,
-      "ms4": 23
+      "in1": 17,
+      "in2": 27,
+      "in3": 22,
+      "in4": 23
     }
   }
 }
