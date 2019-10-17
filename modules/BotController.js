@@ -11,7 +11,7 @@ var BotController = (cfg) => {
 
     /////////////////////////////////
     // MAIN SETUP VARIABLES
-    bc._BOT_ID      = config.botID            // || 'drawbot_sp'
+    bc._BOT_ID      = config.botID            // || 'drawbot_mint'
     bc._DIRSWAP     = config.swapDirections   // || [true, true]
     bc.baseDelay    = config.baseDelay        // || 2
     bc._D           = config.d                // || 1000// default distance between string starts
@@ -27,16 +27,16 @@ var BotController = (cfg) => {
     // set up servo GPIO pin
     //*var servo = new Gpio(config.pins.penServo, gmOut)
 
-    // ^ Steper Motor Pins with ULN2003 board
+    // ^ Stepper motor Pins with ULN2003 board
     //   MotorPins[ (0: left 1: right) , (1-4)] 
-    MotorPins[0,1] = 1 //*new Gpio(config.stepResolutionPins.leftMotor.in1, gmOut)
-    MotorPins[0,2] = 2 //*new Gpio(config.stepResolutionPins.leftMotor.in2, gmOut)
-    MotorPins[0,3] = 3 //*new Gpio(config.stepResolutionPins.leftMotor.in3, gmOut)
-    MotorPins[0,4] = 4 //*new Gpio(config.stepResolutionPins.leftMotor.in4, gmOut)
-    MotorPins[1,1] = 1 //*new Gpio(config.stepResolutionPins.rightMotor.in1, gmOut)
-    MotorPins[1,2] = 2 //*new Gpio(config.stepResolutionPins.rightMotor.in2, gmOut)
-    MotorPins[1,3] = 3 //*new Gpio(config.stepResolutionPins.rightMotor.in3, gmOut)
-    MotorPins[1,4] = 4 //*new Gpio(config.stepResolutionPins.rightMotor.in4, gmOut)
+    StepperMotor[0,1] = 1 //*new Gpio(config.stepPins.leftMotor.in1, gmOut)
+    StepperMotor[0,2] = 2 //*new Gpio(config.stepPins.leftMotor.in2, gmOut)
+    StepperMotor[0,3] = 3 //*new Gpio(config.stepPins.leftMotor.in3, gmOut)
+    StepperMotor[0,4] = 4 //*new Gpio(config.stepPins.leftMotor.in4, gmOut)
+    StepperMotor[1,1] = 1 //*new Gpio(config.stepPins.rightMotor.in1, gmOut)
+    StepperMotor[1,2] = 2 //*new Gpio(config.stepPins.rightMotor.in2, gmOut)
+    StepperMotor[1,3] = 3 //*new Gpio(config.stepPins.rightMotor.in3, gmOut)
+    StepperMotor[1,4] = 4 //*new Gpio(config.stepPins.rightMotor.in4, gmOut)
 
     // ULN2003 board 
     SeqStep = [];
@@ -145,13 +145,13 @@ var BotController = (cfg) => {
         
         for(var pin = 0; pin<4; pin++){
             if(SeqStep[bc.SeqSteps[m]][pin] != 0){
-                //*MotorPins[m,pin].writeSync(1);
+                //*StepperMotor[m,pin].writeSync(1);
             }else{
-                //*MotorPins[m,pin].writeSync(0);
+                //*StepperMotor[m,pin].writeSync(0);
             }
         }
         setTimeout(function(){
-            //*stepPins[m].digitalWrite(0)
+            //*StepperMotor[m].digitalWrite(0) <- WIP
         },1) 
     }
 
