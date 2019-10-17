@@ -1,5 +1,5 @@
 {
-  "botID": "drawbot",
+  "botID": "drawbot_mint",
   "swapDirections": [
     true,
     true
@@ -20,7 +20,7 @@
   "pins": {
     "penServo": 18
   },
-  "stepResolutionPins": {
+  "stepPins": {
     "leftMotor": {
       "in1": 2,
       "in2": 3,
