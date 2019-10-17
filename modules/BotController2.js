@@ -1,4 +1,4 @@
-var Gpio = require('pigpio').Gpio
+//*var Gpio = require('pigpio').Gpio
 var cBezier = require('adaptive-bezier-curve')
 var qBezier = require('adaptive-quadratic-curve')
 var svgParse = require('svg-path-parser')
@@ -9,10 +9,9 @@ var BotController = (cfg) => {
     var bc = {}
     var config = cfg.data
 
-
     /////////////////////////////////
     // MAIN SETUP VARIABLES
-    bc._BOT_ID      = config.botID            // || 'drawbot'
+    bc._BOT_ID      = config.botID            // || 'drawbot_sp'
     bc._DIRSWAP     = config.swapDirections   // || [true, true]
     bc.baseDelay    = config.baseDelay        // || 2
     bc._D           = config.d                // || 1000// default distance between string starts
@@ -23,59 +22,23 @@ var BotController = (cfg) => {
 
     /////////////////////////////////
     // GPIO SETUP
-    var gmOut = {mode: Gpio.OUTPUT}
-    /*
-    var dirPins = [
-        new Gpio(config.pins.leftDir, gmOut),
-        new Gpio(config.pins.rightDir, gmOut)
-    ]
-    var stepPins = [
-        new Gpio(config.pins.leftStep, gmOut),
-        new Gpio(config.pins.rightStep, gmOut)
-    ]
-    */
-    
+    //*var gmOut = {mode: Gpio.OUTPUT}
+
     // set up servo GPIO pin
-    var servo = new Gpio(config.pins.penServo, gmOut)
+    //*var servo = new Gpio(config.pins.penServo, gmOut)
 
-    /*
-    // ^ Step resolution Pins
-    const leftMotorMs1= new Gpio(config.stepResolutionPins.leftMotor.ms1, gmOut)
-    const leftMotorMs2= new Gpio(config.stepResolutionPins.leftMotor.ms2, gmOut)
-    const leftMotorMs3= new Gpio(config.stepResolutionPins.leftMotor.ms3, gmOut)
-    const rightMotorMs1= new Gpio(config.stepResolutionPins.rightMotor.ms1, gmOut)
-    const rightMotorMs2= new Gpio(config.stepResolutionPins.rightMotor.ms2, gmOut)
-    const rightMotorMs3= new Gpio(config.stepResolutionPins.rightMotor.ms3, gmOut)
-
-    // ^ Step resolution settings
-    // * Were configuring our driver for an Eighth Step resolution. Also note that these pinouts
-    // * correspond to the A4988 StepStick stepper motor driver:
-    // ? https://www.pololu.com/product/1182
-    // 
-    // * We're not adjusting the values on the fly so they can be set here and not touched, but if your resolution
-    // * needs to vary at runtime you can adjust the values of these pins. More information 
-    // * on pin configurations can be found here:
-    // ? https://howtomechatronics.com/tutorials/arduino/how-to-control-stepper-motor-with-a4988-driver-and-arduino/
-    leftMotorMs1.digitalWrite(1)
-    leftMotorMs2.digitalWrite(1)
-    leftMotorMs3.digitalWrite(0)
-    rightMotorMs1.digitalWrite(1)
-    rightMotorMs2.digitalWrite(1)
-    rightMotorMs3.digitalWrite(0)
-    */
-    
-    // ^ Steper Motor Pins for ULN2003 board
+    // ^ Steper Motor Pins with ULN2003 board
     //   MotorPins[ (0: left 1: right) , (1-4)] 
-    MotorPins[0,1] = new Gpio(config.stepResolutionPins.leftMotor.in1, gmOut)
-    MotorPins[0,2] = new Gpio(config.stepResolutionPins.leftMotor.in2, gmOut)
-    MotorPins[0,3] = new Gpio(config.stepResolutionPins.leftMotor.in3, gmOut)
-    MotorPins[0,4] = new Gpio(config.stepResolutionPins.leftMotor.in4, gmOut)
-    MotorPins[1,1] = new Gpio(config.stepResolutionPins.rightMotor.in1, gmOut)
-    MotorPins[1,2] = new Gpio(config.stepResolutionPins.rightMotor.in2, gmOut)
-    MotorPins[1,3] = new Gpio(config.stepResolutionPins.rightMotor.in3, gmOut)
-    MotorPins[1,4] = new Gpio(config.stepResolutionPins.rightMotor.in4, gmOut)
+    MotorPins[0,1] = 1 //*new Gpio(config.stepResolutionPins.leftMotor.in1, gmOut)
+    MotorPins[0,2] = 2 //*new Gpio(config.stepResolutionPins.leftMotor.in2, gmOut)
+    MotorPins[0,3] = 3 //*new Gpio(config.stepResolutionPins.leftMotor.in3, gmOut)
+    MotorPins[0,4] = 4 //*new Gpio(config.stepResolutionPins.leftMotor.in4, gmOut)
+    MotorPins[1,1] = 1 //*new Gpio(config.stepResolutionPins.rightMotor.in1, gmOut)
+    MotorPins[1,2] = 2 //*new Gpio(config.stepResolutionPins.rightMotor.in2, gmOut)
+    MotorPins[1,3] = 3 //*new Gpio(config.stepResolutionPins.rightMotor.in3, gmOut)
+    MotorPins[1,4] = 4 //*new Gpio(config.stepResolutionPins.rightMotor.in4, gmOut)
 
-    // ULN2003 board step sequence
+    // ULN2003 board 
     SeqStep = [];
     SeqStep[0] = [1,0,0,0];
     SeqStep[1] = [1,1,0,0];
@@ -84,8 +47,8 @@ var BotController = (cfg) => {
     SeqStep[4] = [0,0,1,0];
     SeqStep[5] = [0,0,1,1];
     SeqStep[6] = [0,0,0,1];
-    SeqStep[7] = [1,0,0,1]; 
-    
+    SeqStep[7] = [1,0,0,1];
+
     /////////////////////////////////
     // CONTROLLER VARIABLES
 
@@ -105,8 +68,8 @@ var BotController = (cfg) => {
     bc.paths = []
     bc.drawingPath = false
 
-    // 
     bc.SeqSteps = [0, 0]
+
 
     /////////////////////////////////
     // HARDWARE METHODS
@@ -148,12 +111,12 @@ var BotController = (cfg) => {
         var servoDnPos = servoMin
         if(dir){
             // lift pen up
-            // console.log('up')
-            servo.servoWrite(servoUpPos)
+            console.log('up')
+            //*servo.servoWrite(servoUpPos)
         }else{
             // put pen down
-            // console.log('down')
-            servo.servoWrite(servoDnPos)
+            console.log('down')
+            //*servo.servoWrite(servoDnPos)
             // servo.digitalWrite(0)
         }
     }
@@ -171,27 +134,24 @@ var BotController = (cfg) => {
     bc.makeStep = (m, d) => {
         // console.log('step',d)
         if(bc._DIRSWAP[m]) d = !d// swap direction if that setting is on
-        /*
-        dirPins[m].digitalWrite(d)
-        stepPins[m].digitalWrite(1)
-        */
-        if(d){
-            bc.SeqSteps[m]--
-            if(bc.SeqSteps[m]<0) bc.SeqSteps[m] = 7
+
+        if(d) {
+               bc.SeqSteps[m]--
+	if(bc.SeqSteps[m]<0) bc.SeqSteps[m] = 7
         }else{
-            bc.SeqSteps[m]++
-            if(bc.SeqSteps[m]>7) bc.SeqSteps[m] = 0
-        }            
+               bc.SeqSteps[m]++
+	if(bc.SeqSteps[m]>7) bc.SeqSteps[m] = 0
+        }              
+        
         for(var pin = 0; pin<4; pin++){
             if(SeqStep[bc.SeqSteps[m]][pin] != 0){
-                MotorPins[m,pin].writeSync(1);
+                //*MotorPins[m,pin].writeSync(1);
             }else{
-                MotorPins[m,pin].writeSync(0);
+                //*MotorPins[m,pin].writeSync(0);
             }
         }
-                
         setTimeout(function(){
-            stepPins[m].digitalWrite(0)
+            //*stepPins[m].digitalWrite(0)
         },1) 
     }
 
@@ -206,10 +166,10 @@ var BotController = (cfg) => {
         var doStep = function(){
             if(!bc.paused){
                 setTimeout(function(){
-                    // console.log(stepped,steps)
+                    console.log(stepped,steps)
                     if(stepped<steps){
                         stepped++
-                        // console.log('a1,a2',a1,a2)
+                        console.log('a1,a2',a1,a2)
 
                         a1 += s1
                         if(a1>=steps){
@@ -226,7 +186,7 @@ var BotController = (cfg) => {
                         doStep()
 
                     }else{
-                        // console.log('bc.rotateBoth done!')
+                        console.log('bc.rotateBoth done!')
                         if (callback!=undefined) callback()
                     }
                 }, bc.baseDelay)
@@ -251,7 +211,7 @@ var BotController = (cfg) => {
             bc.steppeds[m]++
             if(bc.steppeds[m] < bc.stepCounts[m]){
                 setTimeout(function(){
-                    // console.log(m, bc.steppeds[m], "/", bc.stepCounts[m], d*bc.steppeds[m], "/", bc.stepCounts[m]*d)
+                    console.log(m, bc.steppeds[m], "/", bc.stepCounts[m], d*bc.steppeds[m], "/", bc.stepCounts[m]*d)
                     doStep(d, m)
                 }, d)
             }else{
@@ -267,7 +227,7 @@ var BotController = (cfg) => {
     // DRAWING METHODS
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        // console.log('---------- bc.moveTo',x,y,' ----------')
+        console.log('---------- bc.moveTo',x,y,' ----------')
 
         // convert x,y to l1,l2 (ideal, precise string lengths)
         var X = x + bc.startPos.x
@@ -279,7 +239,7 @@ var BotController = (cfg) => {
         L1 = Math.sqrt( X2 + Y2 )
         L2 = Math.sqrt( DsubX2 + Y2 )
 
-        // console.log('L:',L1,L2)
+        console.log('L:',L1,L2)
 
         // convert string lengths to motor steps (float to int)
         var s1 = Math.round(L1 * bc.stepsPerMM[0])
