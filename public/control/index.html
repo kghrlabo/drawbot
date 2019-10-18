@@ -17,12 +17,10 @@
             box-sizing:border-box;
             font-family: sans-serif;
         }
-
         #control{
             margin:12vh 0 0 0;
             position:relative;
         }
-
         .level{
             position:absolute;
             border-radius:100%;
@@ -38,7 +36,6 @@
             width:50vw;
             height:50vw;
         }
-
         .two{
             width:75vw;
             height:75vw;
@@ -52,7 +49,6 @@
             width:37.5vw;
             height:37.5vw;
         }
-
         .three{
             width:50vw;
             height:50vw;
@@ -66,7 +62,6 @@
             width:25vw;
             height:25vw;
         }
-
         .circle{
             border-radius:100%;
             overflow:hidden;
@@ -88,7 +83,6 @@
         .tr{ border-radius:0 100% 0 0; }
         .bl{ border-radius:0 0 0 100%; }
         .br{ border-radius:0 0 100% 0; }
-
         /* separate circle buttons */
         .btn{
             display:block;
@@ -122,7 +116,6 @@
             left:2vw;
             border-color:white;
         }
-
         .pen{
             top:37.5vw;
             left:37.5vw;
@@ -138,7 +131,6 @@
             right:2vw;
             border-color:white;
         }
-
         .pause{
             margin:2vw 0 0 0;
             left:17vw;
@@ -147,7 +139,6 @@
             margin:2vw 0 0 0;
             right:17vw;
         }
-
         .dragover{
             opacity:0.5;
         }
@@ -160,7 +151,6 @@
         .on{
             visibility: visible !important;
         }
-
         #dxy{
             font-size:6vw;
             font-weight:bold;
@@ -305,9 +295,7 @@
         // let botIDel = document.querySelector('#botid')
         // botIDel.innerHTML = botID
         // console.log('botID:',botID)
-
         var connectionIndicator = document.querySelector('#connection')
-
         
         var socket = io.connect('/');
         socket.on('connected', function (data) {
@@ -315,7 +303,6 @@
             socket.emit('getDXY');
             socket.emit('checkBotConnection', {socketID: socket.id});
         });
-
         var flipper = document.querySelector('#main');
         
         var penz = 0;
@@ -324,7 +311,6 @@
             let pad = pads[i];
             pad.addEventListener('touchstart',handleTouch);
         }
-
         function handleTouch(e){
             e.preventDefault()
             var data = this.dataset
@@ -333,7 +319,6 @@
             // data.botID = botID
             socket.emit('r', data)
         }
-
         var pen = document.querySelector('.pen');
         pen.addEventListener('touchstart',function(e){
             penz = !penz// swap pen position
@@ -343,31 +328,26 @@
             }
             socket.emit('pen',data);
         });
-
         var home = document.querySelector('.home');
         home.addEventListener('touchstart',function(e){
             var data = {x:0,y:0}
             // data.botID = botID
             socket.emit('moveto', data);
         });
-
         var settingsButton = document.querySelector('.settings');
         settingsButton.addEventListener('click',function(e){
             toggleSettings();
         });
-
         var settingsPage = document.querySelector('#settings');
         var homePage = document.querySelector('#home');
         function toggleSettings(){
             settingsPage.classList.toggle('on');
             homePage.classList.toggle('on');
         }
-
         var clearcanvasButton = document.querySelector('.clearcanvas');
         clearcanvasButton.addEventListener('click', function(e){
             socket.emit('clearCanvas')
         })
-
         var percentageIndicator = document.querySelector('#percentage')
         var ri = radialIndicator('#percentage', {
             barColor: 'gray',
@@ -382,11 +362,9 @@
                 ri.animate(data.percentage)
             // }
         });
-
         var dfield = document.querySelector('input[name="d"]');
         var xfield = document.querySelector('input[name="startx"]');
         var yfield = document.querySelector('input[name="starty"]');
-
         dfield.onchange = function(e){
             if (dfield.value == "") dfield.value = 0
             var data = {
@@ -404,7 +382,6 @@
             socket.emit('setStartPos',data)
         }
         xfield.onchange = yfield.onchange = updateStartPos;
-
         socket.on('DXY', function(data){
             // if(data.botID == botID){
                 console.log('DXY',data)
@@ -433,7 +410,6 @@
                 botDisconnectHandler()
             }
         })
-
         function botConnectHandler (){
             rebootButton.classList.remove('fa-spin')
             connectionIndicator.classList.remove('disconnected')
@@ -445,7 +421,6 @@
             connectionIndicator.classList.remove('connected')
             connectionIndicator.classList.add('disconnected')
         }
-
         var closeButton = document.querySelector('.close');
         closeButton.addEventListener('click',function(e){
             toggleSettings();
@@ -462,9 +437,6 @@
             connectionIndicator.classList.add('rebooting')
             rebootButton.classList.add('fa-spin')
         });
-
-
-
         // drag and drop
         function ParseXML(val){
 			if (window.DOMParser){
@@ -473,7 +445,6 @@
 			}
 			return xmlDoc ;
 		}
-
         let dropTarget = document.querySelector('#control');
         dropTarget.ondragover = function() {
 		    this.className = 'dragover';
@@ -484,27 +455,30 @@
 		    return false;
 		}
         dropTarget.ondrop = function(e) {
-            this.className = '';
-		    e.preventDefault();
-
-            console.log('dropped!');
-		    var file = e.dataTransfer.files[0],
-		        reader = new FileReader();
-
-				reader.onload = function(evt) {
-		        svg = ParseXML(evt.target.result);
-						// holder.innerHTML = evt.target.result;
-                var path = svg.getElementsByTagName('path')[0];
-
-                var data = {
-                    path: path.getAttribute('d'),
-                    // botID: botID
-                }
-                socket.emit('drawart',data);
-		    }
-		    reader.readAsText(file);
-
-		    return false;
+			this.className = '';
+			e.preventDefault();
+		
+			console.log('dropped!');
+			var file = e.dataTransfer.files[0],
+			reader = new FileReader();
+			reader.onload = function(evt) {
+				svg = ParseXML(evt.target.result);
+				// holder.innerHTML = evt.target.result;
+				var paths = svg.getElementsByTagName('path');
+				let concatPath = "";
+				for(let i=0; i < paths.length; i++)
+				{
+					var path = paths[i];
+					concatPath += path.getAttribute('d');
+				}
+				var data = {
+					path: concatPath,
+					// botID: botID
+				}
+				socket.emit('drawart',data);
+			}
+			reader.readAsText(file);
+			return false;
 		}
 </script>
 </body>
