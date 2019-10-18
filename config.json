@@ -5,7 +5,7 @@
     true
   ],
   "localPort": 80,
-  "baseDelay": 2,
+  "baseDelay": 1,
   "d": 1000,
   "startPos": {
     "x": 100,
@@ -22,16 +22,16 @@
   },
   "stepPins": {
     "leftMotor": {
-      "in1": 2,
-      "in2": 3,
-      "in3": 4,
-      "in4": 5
+      "in1": 4,
+      "in2": 17,
+      "in3": 27,
+      "in4": 22
     },
     "rightMotor": {
-      "in1": 17,
-      "in2": 27,
-      "in3": 22,
-      "in4": 23
+      "in1": 5,
+      "in2": 6,
+      "in3": 13,
+      "in4": 19
     }
   }
 }
