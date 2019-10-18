@@ -12,7 +12,7 @@ var BotController = (cfg) => {
 
     /////////////////////////////////
     // MAIN SETUP VARIABLES
-    bc._BOT_ID      = config.botID            // || 'drawbot'
+    bc._BOT_ID      = config.botID            // || 'drawbot_mint'
     bc._DIRSWAP     = config.swapDirections   // || [true, true]
     bc.baseDelay    = config.baseDelay        // || 2
     bc._D           = config.d                // || 1000// default distance between string starts
@@ -24,40 +24,34 @@ var BotController = (cfg) => {
     /////////////////////////////////
     // GPIO SETUP
     var gmOut = {mode: Gpio.OUTPUT}
-    var dirPins = [
-        new Gpio(config.pins.leftDir, gmOut),
-        new Gpio(config.pins.rightDir, gmOut)
-    ]
-    var stepPins = [
-        new Gpio(config.pins.leftStep, gmOut),
-        new Gpio(config.pins.rightStep, gmOut)
-    ]
+
     // set up servo GPIO pin
     var servo = new Gpio(config.pins.penServo, gmOut)
 
-    // ^ Step resolution Pins
-    const leftMotorMs1= new Gpio(config.stepResolutionPins.leftMotor.ms1, gmOut)
-    const leftMotorMs2= new Gpio(config.stepResolutionPins.leftMotor.ms2, gmOut)
-    const leftMotorMs3= new Gpio(config.stepResolutionPins.leftMotor.ms3, gmOut)
-    const rightMotorMs1= new Gpio(config.stepResolutionPins.rightMotor.ms1, gmOut)
-    const rightMotorMs2= new Gpio(config.stepResolutionPins.rightMotor.ms2, gmOut)
-    const rightMotorMs3= new Gpio(config.stepResolutionPins.rightMotor.ms3, gmOut)
+    // ^ Stepper Motor Pins for ULN2003 board
+    var stepPinsLeft = [
+        new Gpio(config.stepPins.leftMotor.in1, gmOut),
+        new Gpio(config.stepPins.leftMotor.in2, gmOut),
+        new Gpio(config.stepPins.leftMotor.in3, gmOut),
+        new Gpio(config.stepPins.leftMotor.in4, gmOut)
+    ]
+    var stepPinsRight = [
+        new Gpio(config.stepPins.rightMotor.in1, gmOut),
+        new Gpio(config.stepPins.rightMotor.in2, gmOut),
+        new Gpio(config.stepPins.rightMotor.in3, gmOut),
+        new Gpio(config.stepPins.rightMotor.in4, gmOut)
+    ]
 
-    // ^ Step resolution settings
-    // * Were configuring our driver for an Eighth Step resolution. Also note that these pinouts
-    // * correspond to the A4988 StepStick stepper motor driver:
-    // ? https://www.pololu.com/product/1182
-    // 
-    // * We're not adjusting the values on the fly so they can be set here and not touched, but if your resolution
-    // * needs to vary at runtime you can adjust the values of these pins. More information 
-    // * on pin configurations can be found here:
-    // ? https://howtomechatronics.com/tutorials/arduino/how-to-control-stepper-motor-with-a4988-driver-and-arduino/
-    leftMotorMs1.digitalWrite(1)
-    leftMotorMs2.digitalWrite(1)
-    leftMotorMs3.digitalWrite(0)
-    rightMotorMs1.digitalWrite(1)
-    rightMotorMs2.digitalWrite(1)
-    rightMotorMs3.digitalWrite(0)
+    // ULN2003 board step sequence
+    SeqStep = [];
+    SeqStep[0] = [1,0,0,0];
+    SeqStep[1] = [1,1,0,0];
+    SeqStep[2] = [0,1,0,0];
+    SeqStep[3] = [0,1,1,0];
+    SeqStep[4] = [0,0,1,0];
+    SeqStep[5] = [0,0,1,1];
+    SeqStep[6] = [0,0,0,1];
+    SeqStep[7] = [1,0,0,1];
 
     /////////////////////////////////
     // CONTROLLER VARIABLES
@@ -78,6 +72,8 @@ var BotController = (cfg) => {
     bc.paths = []
     bc.drawingPath = false
 
+    //
+    bc.SeqSteps = [0, 0]
 
     /////////////////////////////////
     // HARDWARE METHODS
@@ -119,11 +115,11 @@ var BotController = (cfg) => {
         var servoDnPos = servoMin
         if(dir){
             // lift pen up
-            // console.log('up')
+            console.log('up')
             servo.servoWrite(servoUpPos)
         }else{
             // put pen down
-            // console.log('down')
+            console.log('down')
             servo.servoWrite(servoDnPos)
             // servo.digitalWrite(0)
         }
@@ -142,16 +138,38 @@ var BotController = (cfg) => {
     bc.makeStep = (m, d) => {
         // console.log('step',d)
         if(bc._DIRSWAP[m]) d = !d// swap direction if that setting is on
-        dirPins[m].digitalWrite(d)
-        stepPins[m].digitalWrite(1)
+        if(d){
+            bc.SeqSteps[m]--
+            if(bc.SeqSteps[m]<0) bc.SeqSteps[m] = 7
+        }else{
+            bc.SeqSteps[m]++
+            if(bc.SeqSteps[m]>7) bc.SeqSteps[m] = 0
+        }
+        for(var pin = 0; pin<4; pin++){
+            if(m){ // m=1 right
+                if(SeqStep[bc.SeqSteps[m]][pin] != 0){
+                    stepPinsRight[pin].digitalWrite(1);
+                }else{
+                    stepPinsRight[pin].digitalWrite(0);
+                }
+            }else{ // m=0 left
+                if(SeqStep[bc.SeqSteps[m]][pin] != 0){
+                    stepPinsLeft[pin].digitalWrite(1);
+                }else{
+                    stepPinsLeft[pin].digitalWrite(0);
+                }
+            }
+        }
+
         setTimeout(function(){
-            stepPins[m].digitalWrite(0)
-        },1) 
+            //stepPins[m].digitalWrite(0)
+            //stepPins[m,pin].digitalWrite(0)
+        },1)
     }
 
     // TODO: This could move to a python script for faster execution (faster than bc.baseDelay=2 miliseconds)
     bc.rotateBoth = (s1, s2, d1, d2, callback) => {
-        // console.log('bc.rotateBoth',s1,s2,d1,d2)
+        console.log('bc.rotateBoth',s1,s2,d1,d2)
         var steps = Math.round(Math.max(s1,s2))
         var a1 = 0
         var a2 = 0
@@ -180,7 +198,7 @@ var BotController = (cfg) => {
                         doStep()
 
                     }else{
-                        // console.log('bc.rotateBoth done!')
+                        console.log('bc.rotateBoth done!')
                         if (callback!=undefined) callback()
                     }
                 }, bc.baseDelay)
@@ -194,7 +212,7 @@ var BotController = (cfg) => {
     }
 
     bc.rotate = (motorIndex, dirIndex, delay, steps, callback) => {
-        // console.log('bc.rotate',motorIndex, dirIndex, delay, steps)
+        console.log('bc.rotate',motorIndex, dirIndex, delay, steps)
         bc.stepCounts[motorIndex] = Math.round(steps)
         bc.steppeds[motorIndex] = 0
         // var dir = (dirIndex==1) ? 0 : 1// reverses direction
@@ -205,7 +223,7 @@ var BotController = (cfg) => {
             bc.steppeds[m]++
             if(bc.steppeds[m] < bc.stepCounts[m]){
                 setTimeout(function(){
-                    // console.log(m, bc.steppeds[m], "/", bc.stepCounts[m], d*bc.steppeds[m], "/", bc.stepCounts[m]*d)
+                    console.log(m, bc.steppeds[m], "/", bc.stepCounts[m], d*bc.steppeds[m], "/", bc.stepCounts[m]*d)
                     doStep(d, m)
                 }, d)
             }else{
@@ -221,7 +239,7 @@ var BotController = (cfg) => {
     // DRAWING METHODS
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        // console.log('---------- bc.moveTo',x,y,' ----------')
+        console.log('---------- bc.moveTo',x,y,' ----------')
 
         // convert x,y to l1,l2 (ideal, precise string lengths)
         var X = x + bc.startPos.x
@@ -239,7 +257,7 @@ var BotController = (cfg) => {
         var s1 = Math.round(L1 * bc.stepsPerMM[0])
         var s2 = Math.round(L2 * bc.stepsPerMM[1])
         // console.log('s:',s1,s2)
-        // console.log('bc.currentSteps:',bc.currentSteps[0],bc.currentSteps[1])
+        console.log('bc.currentSteps:',bc.currentSteps[0],bc.currentSteps[1])
 
         // get difference between target steps and current steps (+/- int)
         var sd1 = s1 - bc.currentSteps[0]
@@ -291,7 +309,7 @@ var BotController = (cfg) => {
 
 
     bc.addPath = (pathString) => {
-        console.log('bc.addPath')
+        // console.log('bc.addPath')
         bc.paths.push(pathString)
         console.log('pathcount: ',bc.paths.length)
         if(bc.paths.length==1 && bc.drawingPath==false){
@@ -403,7 +421,7 @@ var BotController = (cfg) => {
                         break
                     case 'S':
                         // absolute smooth cubic bezier curve
-                        
+
                         // check to see if previous command was a C or S
                         // if not, the inferred control point is assumed to be equal to the start curve's start point
                         var inf
@@ -434,7 +452,7 @@ var BotController = (cfg) => {
                             1,
                             doCommand
                         )
-                        
+
                         break
                     case 's':
                         // relative smooth cubic bezier curve
@@ -484,10 +502,10 @@ var BotController = (cfg) => {
                             doCommand
                         )
                         break
-                    
+
                     case 'T':
                         // absolute smooth quadratic bezier curve
-                        
+
                         // check to see if previous command was a C or S
                         // if not, the inferred control point is assumed to be equal to the start curve's start point
                         var inf
@@ -516,7 +534,7 @@ var BotController = (cfg) => {
                             1,
                             doCommand
                         )
-                        
+
                         break
                     case 't':
                         // relative smooth quadratic bezier curve
@@ -570,9 +588,9 @@ var BotController = (cfg) => {
 
                         // draw the arc
                         bc.drawArc(curves,doCommand)
-                        
+
                         break
-                    
+
                     case 'a':
                         // relative arc TODO: CHECK THIS!
 
@@ -592,7 +610,7 @@ var BotController = (cfg) => {
 
                         // draw the arc
                         bc.drawArc(curves,doCommand)
-                        
+
                         break
 
                     case 'Z':
@@ -603,7 +621,7 @@ var BotController = (cfg) => {
                 }
 
                 prevCmd = cmd
-                
+
             }else{
                 cmdCount = 0
                 cmdIndex = 0
