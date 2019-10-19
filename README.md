@@ -17,7 +17,7 @@ Drawing robot capable of rendering SVG paths over WebSockets. Powered by a Raspb
 * [RCカーボートヘリコプター飛行機トレックス450の SG90ミニギアマイクロサーボ](https://amzn.to/2P5JhN7) - JPY 389
 * [USB充電器 ACアダプター 2A](https://amzn.to/2VXKLdt) - JPY 369
 * [Micro USB USB A-MicroBケーブル 2m](https://amzn.to/2BCb2VD) - JPY 481
-* [フランジモータガイド シャフト コネクタ DIY用品インナフランジ カプラモータ 4点セット](https://amzn.to/2VTaQKD) (x2) - JPY 339
+* [フランジモータガイド シャフト コネクタ DIY用品インナフランジ カプラモータ 4点セット 5mm](https://amzn.to/2VTaQKD) (x2) - JPY 339
 * 4 screws for motors (M3-.50 x 4mm metric machine screws)
 * 1-2 small screws 
 * Standard wire or jumper wires (and headers for components if using jumpers)
