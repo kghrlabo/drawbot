@@ -25,7 +25,7 @@ Drawing robot capable of rendering SVG paths over WebSockets. Powered by a Raspb
 
 ## Wiring
 
-![](wiring/drawbot_wiring.jpg)
+![](wiring/drawbot_mint_wiring.jpg)
 
 ## Hardware Assembly
 
