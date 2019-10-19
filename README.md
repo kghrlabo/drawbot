@@ -5,24 +5,23 @@
 Drawing robot capable of rendering SVG paths over WebSockets. Powered by a Raspberry Pi running Node.js.
 
 ## Parts List
-### 100 Yen Parts
-* [木製 アイススティック棒](100 Yen shop DAISO or Seria) ( use 4 sticks) JPY 100
-* [釣り糸 ](100 Yen shop DAISO) (x2) JPY 200 
+### JPY 100 Parts
+* [木製 アイススティック棒　50本](100 Yen shop DAISO or Seria in Japan) ( use 4 sticks) JPY 100
+* [釣り糸 0.8号](100 Yen shop DAISO in Japan) (x2) JPY 200
 
 ### Everything Else (~$150 or less)
 
-* [Zafina 電圧 ステッピングモーター DC 5Vステッパーモーター 28BYJ-48 28BYJ48 ドライバーボード](https://amzn.to/2oSu4nK) (x2) - JPY 143
+* [Zafina 電圧 ステッピングモーター DC 5Vステッパーモーター 28BYJ-48 28BYJ48 ドライバーボード](https://amzn.to/2oSu4nK) (x2) - JPY 286
 * [DIP　5ピン　　DIP変換　2.54mm　マイクロ　USB　電子部品　10個](https://amzn.to/2W0GtSQ) (only need 2) - JPY 369
 * [Raspberry Pi Zero W](https://www.switch-science.com/catalog/3200/) - JPY 1,320)
 * [RCカーボートヘリコプター飛行機トレックス450の SG90ミニギアマイクロサーボ](https://amzn.to/2P5JhN7) - JPY 389
 * [USB充電器 ACアダプター 2A](https://amzn.to/2VXKLdt) - JPY 369
+* [USBケーブル] (https://xxxx) - JPY 300
 * [フランジモータガイド シャフト コネクタ DIY用品インナフランジ カプラモータ 4点セット](https://amzn.to/2VTaQKD) (x2) - JPY 339
-* \#8-32 x 1-5/8 in. Eye Bolts (2-pack) - $0.98
-* 8 screws for spools (#4-40 x ~½")
-* 8 screws for motors (M3-.50 x 6mm metric machine screws)
-* 1-2 small screws for gondola to secure pen/marker
+* 4 screws for motors (M3-.50 x 4mm metric machine screws)
+* 1-2 small screws 
 * Standard wire or jumper wires (and headers for components if using jumpers)
-* Micro SD card (class 10 or better)
+* Micro SD card for Raspberry Pi zero (class 10 or better)
 
 ## Wiring
 
